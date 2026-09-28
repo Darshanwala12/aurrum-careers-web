@@ -68,7 +68,6 @@
   position: absolute; top: -2px; right: -2px; width: 0.75rem; height: 0.75rem; border-radius: 50%;
   background: var(--accent); border: 2px solid var(--paper); animation: aurrum-pulse 1.2s ease-in-out infinite;
 }
-@media (min-width: 900px) { .aurrum-ai-character__launcher { display: none; } }
 
 /* Chat sheet header: avatar thumb + name/status + close — a minimal
    chatbot-style title bar instead of the avatar floating loose in the panel. */

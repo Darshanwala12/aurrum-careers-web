@@ -41,11 +41,12 @@ function useIsCompact() {
  * once the visitor asks something it answers, draws the matching doodle
  * object, and softly highlights the related existing section.
  */
-export default function AiCharacter({ scene, overrideText, onOverrideConsumed, muted, onToggleMute, captionsOn, paused, reducedMotion }) {
+export default function AiCharacter({ scene, overrideText, onOverrideConsumed, muted, onToggleMute, captionsOn, paused, reducedMotion, floating = false }) {
   const ai = useAiCharacter({ muted });
   // Photoreal Anam cara-4 avatar: offered only when the token server is configured.
   const live = useLiveAvatar(ai, { muted });
-  const compact = useIsCompact();
+  const viewportCompact = useIsCompact();
+  const compact = floating || viewportCompact;
   const [expanded, setExpanded] = useState(false);
   const [draft, setDraft] = useState('');
   const [showHistory, setShowHistory] = useState(false);

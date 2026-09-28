@@ -1,177 +1,40 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSmoothScroll } from './animations/useSmoothScroll.js';
-import { useActiveScene } from './animations/useActiveScene.js';
-import { useReveal } from './animations/useReveal.js';
-import CompanionStage from './components/CompanionStage.jsx';
-import ScenePanel from './components/ScenePanel.jsx';
-import IntroGate from './components/IntroGate.jsx';
-import ThemeToggle from './components/ThemeToggle.jsx';
-import { scenes, personas } from './data/scenes.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import AiCharacter from './ai/AiCharacter.jsx';
+import { scenes } from './data/scenes.js';
 
-const sceneIds = scenes.map((s) => s.id);
+gsap.registerPlugin(ScrollTrigger);
+const services = [['✦', 'Tailoring CV and Cover Letter'], ['◈', 'Quality Job Applications'], ['◎', 'LinkedIn Profile Enhancement'], ['◌', 'Mock Interviews'], ['⌁', 'Career Counselling'], ['▣', 'Portfolio Building'], ['◉', 'Interview Support'], ['⌖', 'Job-search strategy'], ['⌘', 'Skill-gap identification'], ['◒', 'Professional positioning advice'], ['∞', 'Network connection']];
+const support = [['Students', 'First jobs, graduate opportunities, internships, and career-path guidance.'], ['Fresh graduates', 'Support entering the professional job market after education.'], ['Early-career professionals', 'Better opportunities, career growth, and role changes.'], ['Job changers', 'CV positioning, target roles, application strategy, interview preparation, and career decisions.'], ['Career changers', 'Transferable skills, skill gaps, target roles, and a credible transition story.'], ['Passive job seekers', 'Support for employed candidates open to the right opportunity.']];
+const process = [['🎯', 'Know Your Direction', "Stop applying everywhere. Start knowing where you're going."], ['✨', 'Build Your Brand', 'Turn your CV into a profile recruiters notice.'], ['🔎', 'Find Your Fit', 'Less job-board scrolling. More opportunities that make sense for you.'], ['📩', 'Make Your Move', 'Right role. Right CV. Right application.'], ['🎤', 'Own the Interview', 'Prepare smarter. Walk in with confidence.'], ['🚀', 'Land & Level Up', "Your first job isn't the finish line. It's the next chapter."]];
+const journey = [['Discover Your Direction', 'Understand your goals, experience, skills, target roles, industries, locations, and career expectations.', 'Clarity on where you want to go.'], ['Review Your Profile', 'Assess your CV, LinkedIn profile, experience, and skills to identify gaps and opportunities.', 'Know what needs improvement.'], ['Build Your Positioning', 'Define your target roles, industries, transferable skills, and professional story.', 'A clear career positioning strategy.'], ['Optimise Your CV & Profile', 'Strengthen your CV, LinkedIn, cover letters, and application materials.', 'A stronger, market-ready profile.'], ['Find Relevant Opportunities', 'Identify live opportunities aligned with your skills, experience, location, and goals.', 'A focused job-search pipeline.'], ['Apply Strategically', 'Tailor applications, support submissions, and track your progress.', 'Less random applying, more targeted applications.'], ['Prepare for Interviews', 'Prepare for company-specific, technical, and behavioral interviews through practice and feedback.', 'Greater interview readiness and confidence.'], ['Navigate Offers & Next Steps', 'Understand the role, compensation, progression opportunities, and next steps.', 'Make an informed career move.'], ['Keep Building Your Career', 'Support your transition into the new role and longer-term career growth.', 'Move from job search to career progression.']];
 
-function FlowList({ items }) {
-  return (
-    <ol className="flow-list">
-      {items.map((item, i) => (
-        <li key={item} data-reveal>
-          <span>{item}</span>
-          {i < items.length - 1 && <span className="flow-arrow" aria-hidden="true">↓</span>}
-        </li>
-      ))}
-    </ol>
-  );
-}
+function Home({ setPage }) { return <>
+  <section className="new-home__hero"><p className="new-home__eyebrow">AURRUM CAREERS</p><h1>Your personalised career companion, from finding the right role to preparing for the interview.</h1><p className="new-home__lede">Less scrolling. More direction. Smarter applications. Better opportunities.</p><div className="new-home__hero-actions"><button className="new-home__primary" onClick={() => setPage('contact')}>Start your 15-day free trial</button><a href="#services">Explore services</a></div></section>
+  <section id="services" className="new-home__section" data-depth-section><p className="new-home__eyebrow">WHAT WE DO</p><h2>Practical support for every move.</h2><div className="new-home__service-grid">{services.map(([icon, service], index) => <article key={service} className="new-home__service-card" data-depth-card><i aria-hidden="true">{icon}</i><b>{String(index + 1).padStart(2, '0')}</b><span>{service}</span></article>)}</div></section>
+  <section className="new-home__section" data-depth-section><p className="new-home__eyebrow">WHO WE SUPPORT</p><h2>Career support that fits your stage.</h2><div className="new-home__support-grid">{support.map(([title, text]) => <article key={title} data-depth-card><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+  <section className="new-home__section" data-depth-section><p className="new-home__eyebrow">THE PROCESS</p><h2>One clear route forward.</h2><div className="new-home__process-grid">{process.map(([icon, title, text]) => <article key={title} data-depth-card><span>{icon}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+  <section className="new-home__section new-home__journey"><p className="new-home__eyebrow">CANDIDATE JOURNEY</p><h2>Discover. Review. Position. Optimise. Match. Apply. Prepare. Progress. Grow.</h2><ol>{journey.map(([title, text, outcome]) => <li key={title}><h3>{title}</h3><p>{text}</p><strong>Outcome: {outcome}</strong></li>)}</ol></section>
+</>; }
+function About() { return <section className="new-home__page-copy"><p className="new-home__eyebrow">ABOUT AURRUM CAREERS</p><h1>Your job search deserves better than a browser tab full of rejection emails.</h1><p>Job hunting should not feel like screaming into the void. Sending CV after CV, hitting submit, and waiting endlessly is not a strategy.</p><h2>That is why we built Aurrum Careers.</h2><p>We are your personalised career companion, combining real human support with a smarter approach to your job search. We take time to understand where you want to go, what you bring to the table, and which opportunities make sense for you.</p><p>From refining your CV and matching you with relevant roles to supporting your applications and preparing you for interviews, we are with you through every step.</p><div className="new-home__difference"><p>No fake promises. No guaranteed-job nonsense. No applying to hundreds of roles and hoping something sticks.</p><strong>Just the right direction, smarter applications, and real support when it matters.</strong></div><p>Because you are not just another resume in a pile. You are someone’s next great hire. Let us help them find you.</p></section>; }
+function Contact() { return <section className="new-home__page-copy new-home__contact"><p className="new-home__eyebrow">CONTACT</p><h1>Ready for a clearer next move?</h1><p>Start with a 15-day free trial and tell us where you want your career to go. Zenz is ready in the corner if you would rather start with a question.</p><form onSubmit={event => event.preventDefault()}><label>Full name<input required placeholder="Your name" /></label><label>Email address<input required type="email" placeholder="you@example.com" /></label><label>What would you like help with?<textarea rows="4" placeholder="Tell us about your career goal" /></label><button className="new-home__primary">Start my 15-day free trial</button></form></section>; }
 
 export default function App() {
-  const [introDone, setIntroDone] = useState(false);
-  const [persona, setPersona] = useState(null);
-  const [muted, setMuted] = useState(false);
-  const [captionsOn, setCaptionsOn] = useState(true);
-  const [reducedMotion, setReducedMotion] = useState(
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-  const [paused, setPaused] = useState(false);
-  // Always start light (warm paper/plaster background), regardless of the
-  // visitor's OS color-scheme preference — matches the reference screenshot.
-  const [theme, setTheme] = useState('light');
-
+  const [page, setPage] = useState('home'); const [muted, setMuted] = useState(false); const [captionsOn, setCaptionsOn] = useState(true); const [reducedMotion, setReducedMotion] = useState(false); const [paused, setPaused] = useState(false);
+  const siteRef = useRef(null);
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
-
-  useSmoothScroll();
-  const trackRef = useRef(null);
-  const activeSceneId = useActiveScene(trackRef, sceneIds);
-  const [overrideText, setOverrideText] = useState(null);
-  const [activePersonaPick, setActivePersonaPick] = useState(persona);
-
-  useReveal(trackRef, []);
-
-  const handleIntroDone = (personaId) => {
-    setPersona(personaId);
-    setActivePersonaPick(personaId);
-    setIntroDone(true);
-  };
-
-  const handlePersonaClick = (p) => {
-    setActivePersonaPick(p.id);
-    setOverrideText(p.reply);
-  };
-
-  return (
-    <div className={`companion-app ${reducedMotion ? 'motion-reduced' : ''}`}>
-      {!introDone && <IntroGate onDone={handleIntroDone} />}
-
-      <a className="skip-link" href="#who">Skip introduction</a>
-
-      <header className="mini-header" hidden={!introDone}>
-        <a href="#welcome" className="logo-chip" aria-label="Aurrum Careers home">
-          <img src="/brand/aurrum-logo-light.webp" alt="Aurrum Careers" className="logo-chip__img logo-chip__img--light" />
-          <img src="/brand/aurrum-logo-dark.webp" alt="Aurrum Careers" className="logo-chip__img logo-chip__img--dark" />
-        </a>
-        <div className="mini-header__actions">
-          <ThemeToggle theme={theme} onToggle={setTheme} />
-          <a href="#final" className="btn btn--ghost">
-            <span className="label-full">Skip to Free Trial</span>
-            <span className="label-short">Free Trial</span>
-          </a>
-        </div>
-      </header>
-
-      <div className={`story ${introDone ? 'is-visible' : 'is-hidden'}`} ref={trackRef}>
-        <div className="story__avatar-col">
-          {introDone && <CompanionStage
-            activeSceneId={activeSceneId}
-            overrideText={overrideText}
-            onOverrideConsumed={() => setOverrideText(null)}
-            muted={muted} onToggleMute={() => setMuted((m) => !m)}
-            captionsOn={captionsOn} onToggleCaptions={() => setCaptionsOn((c) => !c)}
-            reducedMotion={reducedMotion} onToggleReducedMotion={() => setReducedMotion((r) => !r)}
-            paused={paused} onTogglePaused={() => setPaused((p) => !p)}
-          />}
-        </div>
-
-        <div className="story__track">
-          <ScenePanel id="welcome" eyebrow="Your career advisor" motif="stars">
-            <h1>Meet Elena, the advisor who explains Aurrum Careers for you.</h1>
-        <p className="lede">Scroll. I'll walk you through it, or ask me anything.</p>
-          </ScenePanel>
-
-          <ScenePanel id="problem" eyebrow="The problem" motif="laptop">
-            <h2>Job hunting shouldn't feel like this.</h2>
-            <FlowList items={['100 Applications', 'No Response', 'Confusion', 'Wrong Roles', 'Interview Anxiety']} />
-          </ScenePanel>
-
-          <ScenePanel id="solution" eyebrow="The Aurrum solution" motif="compass">
-            <h2>Direction, brand, fit, strategy, preparation, growth.</h2>
-            <p>Everything your career search needs, brought together in one guided experience.</p>
-          </ScenePanel>
-
-          <ScenePanel id="who" eyebrow="Who we help" motif="network">
-            <h2>Which one sounds most like you?</h2>
-            <div className="persona-picker" data-reveal>
-              {personas.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className={`segment-pill ${activePersonaPick === p.id ? 'is-active' : ''}`}
-                  onClick={() => handlePersonaClick(p)}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </ScenePanel>
-
-          <ScenePanel id="cv" eyebrow="Your CV" motif="cv">
-            <h2>Your CV should say why, not just what.</h2>
-        <p>We rewrite it to meet UK hiring standards and pass ATS, so it makes the case for you.</p>
-          </ScenePanel>
-
-          <ScenePanel id="applications" eyebrow="Applications" motif="jobcards">
-            <h2>Quality over volume.</h2>
-            <FlowList items={['100 Random Jobs', 'Filtered by Fit', '10 Real Opportunities']} />
-          </ScenePanel>
-
-          <ScenePanel id="linkedin" eyebrow="LinkedIn" motif="linkedin">
-            <h2>Your profile should say what your CV says.</h2>
-        <p>Headline, about, experience, skills, and positioning, all aligned and visible to recruiters.</p>
-          </ScenePanel>
-
-          <ScenePanel id="interview" eyebrow="Interviews" motif="mic">
-            <h2>Own the interview.</h2>
-            <FlowList items={['Real Questions', 'Honest Feedback', 'Real Practice', 'Real Confidence']} />
-          </ScenePanel>
-
-          <ScenePanel id="journey" eyebrow="Your journey" motif="ladder">
-            <h2>Six steps, not six hundred job tabs.</h2>
-            <FlowList items={['Know Your Direction', 'Build Your Brand', 'Find Your Fit', 'Make Your Move', 'Own the Interview', 'Land & Level Up']} />
-          </ScenePanel>
-
-          <ScenePanel id="trial" eyebrow="15-day free trial" motif="calendar">
-            <h2>Try it before deciding what comes next.</h2>
-        <FlowList items={['Day 1: Understand You', 'Days 2–5: Build Positioning', 'Days 5–10: Applications & Strategy', 'Days 10–15: Interview & Next Steps']} />
-          </ScenePanel>
-
-          <ScenePanel id="final" eyebrow="Ready?" motif="target">
-            <h2>It's not about what Aurrum can do.</h2>
-            <p>It's about where you want your career to go.</p>
-            <div className="final-ctas" data-reveal>
-              <a href="#final" className="btn btn--primary">Start My 15-Day Free Trial</a>
-              <a href="#welcome" className="btn btn--outline">Talk to Elena</a>
-            </div>
-          </ScenePanel>
-        </div>
-      </div>
-
-      <footer className="site-footer">
-        <a href="#welcome" className="logo-chip logo-chip--footer" aria-label="Aurrum Careers home">
-          <img src="/brand/aurrum-logo-light.webp" alt="Aurrum Careers" className="logo-chip__img logo-chip__img--light" />
-          <img src="/brand/aurrum-logo-dark.webp" alt="Aurrum Careers" className="logo-chip__img logo-chip__img--dark" />
-        </a>
-        <p className="site-footer__copy">© {new Date().getFullYear()} Aurrum Careers. All rights reserved.</p>
-      </footer>
-    </div>
-  );
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || page !== 'home') return undefined;
+    const root = siteRef.current;
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.new-home__hero > *', { opacity: 0, y: 34, rotateX: -9 }, { opacity: 1, y: 0, rotateX: 0, duration: .85, stagger: .1, ease: 'power3.out' });
+      gsap.utils.toArray('[data-depth-section]').forEach((section) => {
+        const cards = section.querySelectorAll('[data-depth-card]');
+        gsap.fromTo(cards, { opacity: 0, y: 48, rotateX: -14, transformPerspective: 900 }, { opacity: 1, y: 0, rotateX: 0, duration: .72, stagger: .07, ease: 'power3.out', scrollTrigger: { trigger: section, start: 'top 78%' } });
+        gsap.to(section, { yPercent: -4, ease: 'none', scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: .7 } });
+      });
+    }, root);
+    return () => ctx.revert();
+  }, [page]);
+  return <div ref={siteRef} className="new-home"><header className="new-home__header"><button className="new-home__brand" onClick={() => setPage('home')}><img src="/brand/aurrum-logo-light.webp" alt="Aurrum Careers" /></button><nav aria-label="Main navigation">{['home', 'about', 'contact'].map(item => <button key={item} className={page === item ? 'is-active' : ''} onClick={() => setPage(item)}>{item}</button>)}</nav><button className="new-home__trial" onClick={() => setPage('contact')}>15-day free trial</button></header><main>{page === 'home' ? <Home setPage={setPage} /> : page === 'about' ? <About /> : <Contact />}</main><footer className="new-home__footer"><img src="/brand/aurrum-logo-light.webp" alt="Aurrum Careers" /><p>© {new Date().getFullYear()} Aurrum Careers</p></footer><AiCharacter floating scene={scenes[0]} muted={muted} onToggleMute={() => setMuted(v => !v)} captionsOn={captionsOn} paused={paused} reducedMotion={reducedMotion} onOverrideConsumed={() => {}} /></div>;
 }
