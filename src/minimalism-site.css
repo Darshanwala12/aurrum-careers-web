@@ -13,7 +13,8 @@
   --min-yellow: #ECA825;
   --min-border: #D8D2C5;
   --min-border-dark: #181818;
-  --min-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --min-font: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --min-font-display: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --min-radius: 4px;
 }
 
@@ -29,6 +30,15 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
+}
+
+.min-site h1,
+.min-site h2,
+.min-site h3,
+.min-hero-title,
+.min-section-title {
+  font-family: var(--min-font-display);
+  letter-spacing: -0.01em;
 }
 
 .min-container {

@@ -1,21 +1,9 @@
 @font-face {
-  font-family: 'Coolvetica';
-  src: url('/fonts/coolvetica/coolvetica-regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Coolvetica';
-  src: url('/fonts/coolvetica/coolvetica-regular-italic.woff') format('woff');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Coolvetica Condensed';
-  src: url('/fonts/coolvetica/coolvetica-condensed.woff') format('woff');
-  font-weight: 400;
+  font-family: 'Kyosta';
+  src: url('/fonts/kyosta.woff2') format('woff2'),
+       url('/fonts/kyosta.woff') format('woff'),
+       local('Kyosta');
+  font-weight: 400 900;
   font-style: normal;
   font-display: swap;
 }
@@ -30,8 +18,8 @@
   --accent-2: #cd9229;
   --accent-rgb: 189, 43, 40;
   --line: rgba(1, 1, 1, 0.12);
-  --font-display: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-body: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Kyosta', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Kyosta', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --header-h: 3.6rem;
   --avatarbar-h: 2.6rem;

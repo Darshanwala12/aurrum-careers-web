@@ -3,7 +3,7 @@
 /* Aurrum AI Floating Chatbot Modal & 3D Companion Styling */
 
 .aurrum-ai-character {
-  --aic-hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  --aic-hand: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   position: relative;
   width: 100%;
   min-height: 0;

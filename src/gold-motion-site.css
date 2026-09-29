@@ -15,7 +15,8 @@
   --gm-text-muted: #59544B;     /* High Visibility Dark Slate */
   --gm-border: #DDD6C8;         /* Hairline Border */
   --gm-border-strong: #cd9228;  /* Gold Accent Border */
-  --gm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --gm-font: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --gm-font-display: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --gm-radius: 8px;
 }
 
@@ -31,6 +32,17 @@
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
+}
+
+.gm-site h1,
+.gm-site h2,
+.gm-site h3,
+.gm-hero-title,
+.gm-section-title,
+.gm-stat-number,
+.gm-cta-title {
+  font-family: var(--gm-font-display);
+  letter-spacing: -0.01em;
 }
 
 .gm-container {

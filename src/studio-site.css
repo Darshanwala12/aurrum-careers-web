@@ -12,7 +12,8 @@
   --std-ochre: #E09B19;
   --std-border: #E4DFD7;
   --std-border-dark: #111111;
-  --std-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --std-font: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --std-font-display: 'Kyosta', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --std-radius: 6px;
 }
 
@@ -23,6 +24,15 @@
   min-height: 100vh;
   margin: 0;
   line-height: 1.5;
+}
+
+.std-site h1,
+.std-site h2,
+.std-site h3,
+.std-hero-title,
+.std-section-title {
+  font-family: var(--std-font-display);
+  letter-spacing: -0.01em;
 }
 
 .std-container {
