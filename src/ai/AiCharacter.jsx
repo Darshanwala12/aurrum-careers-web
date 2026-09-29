@@ -52,6 +52,21 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
   const launcherRef = useRef(null);
   const logRef = useRef(null);
   const hasAutoGreeted = useRef(false);
+  const hasAutoOpened = useRef(false);
+
+  // Automatically open the chatbot 5 seconds after website loads on desktop
+  useEffect(() => {
+    if (hasAutoOpened.current) return;
+    const isDesktop = window.matchMedia('(min-width: 900px)').matches;
+    if (!isDesktop) return;
+
+    const timer = setTimeout(() => {
+      hasAutoOpened.current = true;
+      setExpanded(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Auto-start chatbot voice out loud on initial website load
   useEffect(() => {
@@ -300,6 +315,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
 
   return (
     <>
+      {/* Sleek Circular Closed Floating Launcher - NO text when closed */}
       {!expanded && createPortal(
         <button
           ref={launcherRef}
@@ -308,25 +324,26 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
           onClick={() => setExpanded(true)}
           aria-label="Aurrum Career Counsellor"
           aria-expanded={expanded}
+          title="Open Aurrum Career Counsellor"
         >
           <div className="aurrum-ai-character__bar-avatar">
             <Suspense fallback={<span>Elena</span>}>
               <CharacterCanvas character={character} halfBody reducedMotion={reducedMotion} paused={paused} />
             </Suspense>
           </div>
-          <span className="aurrum-ai-character__launcher-label">Career Counsellor</span>
           {busy && <span className="aurrum-ai-character__launcher-dot" aria-hidden="true" />}
         </button>,
         document.body
       )}
 
+      {/* Modern Floating Modal Panel */}
       {expanded && createPortal(
         <div className="aurrum-ai-character aurrum-ai-character--modal" role="dialog" aria-modal="true" aria-label="Aurrum Career Counsellor">
           <div className="aurrum-ai-character__sheet-head">
-            {/* Header logo area: Official Aurrum Careers Logo Image */}
             <div className="aurrum-ai-character__sheet-head-avatar">
               <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers" className="aurrum-ai-character__head-logo-img" />
             </div>
+            {/* Show "Aurrum Career Counsellor" text ONLY after opening */}
             <div className="aurrum-ai-character__sheet-head-text">
               <strong>Aurrum Career Counsellor</strong>
               <span role="status">{ai.status === 'thinking' ? 'Thinking…' : ai.status === 'listening' ? 'Listening…' : 'Aurrum Careers'}</span>
