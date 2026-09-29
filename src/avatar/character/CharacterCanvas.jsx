@@ -63,9 +63,9 @@ export default function CharacterCanvas({ character = {}, halfBody = false, redu
       renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
       renderer.domElement.addEventListener('webglcontextlost', contextLost);
       node.appendChild(renderer.domElement);
-      scene.add(new T.HemisphereLight(0xf1f9ff, 0x686070, 2.4));
-      const key = new T.DirectionalLight(0xfff3df, 3); key.position.set(-3, 5, 5); scene.add(key);
-      const rim = new T.DirectionalLight(0x83eee2, 1.8); rim.position.set(3, 3, -2); scene.add(rim);
+      scene.add(new T.HemisphereLight(0xfffaee, 0x685535, 2.4));
+      const key = new T.DirectionalLight(0xfff2df, 3.2); key.position.set(-3, 5, 5); scene.add(key);
+      const rim = new T.DirectionalLight(0xcd9228, 2.2); rim.position.set(3, 3, -2); scene.add(rim);
       observer = new ResizeObserver(fit); observer.observe(node); fit();
       intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; resume(); }); intersection.observe(node);
       document.addEventListener('visibilitychange', resume);

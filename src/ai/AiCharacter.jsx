@@ -42,7 +42,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
   const compact = floating || viewportCompact;
 
   const [expanded, setExpanded] = useState(false);
-  const [avatarMode, setAvatarMode] = useState('half');
+  const [avatarMode, setAvatarMode] = useState('full');
   const [draft, setDraft] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
@@ -352,10 +352,10 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
             <button
               type="button"
               className="aurrum-ai-character__mode-toggle"
-              onClick={() => setAvatarMode(m => m === 'half' ? 'full' : 'half')}
-              title={`Switch to ${avatarMode === 'half' ? 'Full Body' : 'Half Body'} 3D Mode`}
+              onClick={() => setAvatarMode(m => m === 'full' ? 'half' : 'full')}
+              title={`Switch to ${avatarMode === 'full' ? 'Half Body' : 'Full Body'} 3D Mode`}
             >
-              {avatarMode === 'half' ? '👤 Full' : '🧘 Half'}
+              {avatarMode === 'full' ? '🧘 Half' : '👤 Full'}
             </button>
 
             <button type="button" className="aurrum-ai-character__close" onClick={() => setExpanded(false)} aria-label="Close conversation">✕</button>

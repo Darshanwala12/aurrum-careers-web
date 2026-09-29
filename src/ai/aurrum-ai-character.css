@@ -207,7 +207,7 @@
   border-color: var(--gm-gold, #cd9228) !important;
 }
 
-/* Stage & Avatar Sizing - Increased 3D Character Modal Size */
+/* Stage & Avatar Sizing - Full Body Brand Style */
 .aurrum-ai-character__stage {
   position: relative;
   width: 100%;
@@ -215,32 +215,36 @@
   min-height: 180px;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
-  padding-top: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0;
   margin: 0 auto;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 50%, rgba(205, 146, 40, 0.16) 0%, rgba(250, 247, 242, 0) 72%);
 }
 
 .aurrum-ai-character__avatar {
   position: relative;
   height: 100%;
   width: 100%;
-  max-width: 360px;
-  max-height: 320px;
+  max-width: 380px;
+  max-height: 360px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   transition: transform 0.6s ease;
 }
 
 .aurrum-ai-character__stage.is-full-body .aurrum-ai-character__avatar {
-  max-height: 360px;
-  max-width: 360px;
+  max-height: 380px;
+  max-width: 380px;
+  aspect-ratio: 3 / 4.2;
 }
 
 .aurrum-ai-character__stage.is-half-body .aurrum-ai-character__avatar {
-  max-height: 280px;
-  max-width: 320px;
+  max-height: 290px;
+  max-width: 330px;
+  aspect-ratio: 1 / 1;
 }
 
 .aurrum-ai-character__avatar.is-3d {
