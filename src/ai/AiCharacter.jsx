@@ -42,7 +42,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
   const compact = floating || viewportCompact;
 
   const [expanded, setExpanded] = useState(false);
-  const [avatarMode, setAvatarMode] = useState('half'); // 'half' | 'full'
+  const [avatarMode, setAvatarMode] = useState('half');
   const [draft, setDraft] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
@@ -51,6 +51,21 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
   const inputRef = useRef(null);
   const launcherRef = useRef(null);
   const logRef = useRef(null);
+  const hasAutoGreeted = useRef(false);
+
+  // Auto-start chatbot voice out loud on initial website load
+  useEffect(() => {
+    if (hasAutoGreeted.current || muted || paused) return;
+    hasAutoGreeted.current = true;
+    const timer = setTimeout(() => {
+      ai.say({
+        id: 'auto-greeting',
+        answer: 'Hello! Welcome to Aurrum Careers. I am your personalised career counsellor. From finding the right role to preparing for the interview, I am here to guide you.',
+        section: null
+      });
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [muted, paused]);
 
   const [dismissedFor, setDismissedFor] = useState(null);
   useEffect(() => {
@@ -176,7 +191,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
           {speaking && !paused && <span className="aurrum-ai-character__cursor" aria-hidden="true">▍</span>}
         </p>
       )}
-      {!showAnswer && !pending && voiceSettings.greetingName && <p className="aurrum-ai-character__greeting">Hello, {voiceSettings.greetingName}. I’m Zenz. Ready when you are.</p>}
+      {!showAnswer && !pending && voiceSettings.greetingName && <p className="aurrum-ai-character__greeting">Hello, {voiceSettings.greetingName}. I am your Aurrum Career Counsellor.</p>}
 
       {live.status !== 'unavailable' && (
         <div className="aurrum-ai-character__live" role="group" aria-label="Live conversation">
@@ -204,14 +219,14 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
 
       <div className="aurrum-ai-character__composer">
         <form className="aurrum-ai-character__voice" onSubmit={submit}>
-          <label htmlFor="aurrum-ai-input" className="aurrum-ai-character__sr">Type your question for Zenz</label>
+          <label htmlFor="aurrum-ai-input" className="aurrum-ai-character__sr">Type your question for Aurrum Career Counsellor</label>
           <input
             id="aurrum-ai-input"
             ref={inputRef}
             type="text"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Ask Zenz anything…"
+            placeholder="Ask Career Counsellor anything…"
             autoComplete="off"
           />
           <button type="submit" className="aurrum-ai-character__send" disabled={!draft.trim()} aria-label="Ask">
@@ -231,7 +246,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
           <button type="button" className="aurrum-ai-character__icon" onClick={ai.replay} disabled={!ai.current || busy || live.isLive} aria-label="Replay answer" title="Replay">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" /></svg>
           </button>
-          <button type="button" className="aurrum-ai-character__icon" onClick={() => setVoiceOpen((v) => !v)} aria-pressed={voiceOpen} aria-label="Zenz voice controls" title="Voice controls">
+          <button type="button" className="aurrum-ai-character__icon" onClick={() => setVoiceOpen((v) => !v)} aria-pressed={voiceOpen} aria-label="Voice controls" title="Voice controls">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7v4M16 7v4M5 10v2M19 10v2M8 21h8" /></svg>
           </button>
           <button
@@ -273,7 +288,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
             <li className="is-assistant">{OPENING_LINE}</li>
             {ai.history.map((m, i) => (
               <li key={i} className={m.role === 'user' ? 'is-user' : 'is-assistant'}>
-                <span className="aurrum-ai-character__sr">{m.role === 'user' ? 'You: ' : 'Elena: '}</span>
+                <span className="aurrum-ai-character__sr">{m.role === 'user' ? 'You: ' : 'Counsellor: '}</span>
                 {m.text}
               </li>
             ))}
@@ -283,7 +298,6 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
     </>
   );
 
-  // Floating chatbot launcher + modern floating modal panel
   return (
     <>
       {!expanded && createPortal(
@@ -292,7 +306,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
           type="button"
           className="aurrum-ai-character__launcher"
           onClick={() => setExpanded(true)}
-          aria-label="Ask Zenz, your Aurrum career companion"
+          aria-label="Aurrum Career Counsellor"
           aria-expanded={expanded}
         >
           <div className="aurrum-ai-character__bar-avatar">
@@ -300,24 +314,24 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
               <CharacterCanvas character={character} halfBody reducedMotion={reducedMotion} paused={paused} />
             </Suspense>
           </div>
-          <span className="aurrum-ai-character__launcher-label">Ask Zenz</span>
+          <span className="aurrum-ai-character__launcher-label">Career Counsellor</span>
           {busy && <span className="aurrum-ai-character__launcher-dot" aria-hidden="true" />}
         </button>,
         document.body
       )}
 
       {expanded && createPortal(
-        <div className="aurrum-ai-character aurrum-ai-character--modal" role="dialog" aria-modal="true" aria-label="Conversation with Zenz">
+        <div className="aurrum-ai-character aurrum-ai-character--modal" role="dialog" aria-modal="true" aria-label="Aurrum Career Counsellor">
           <div className="aurrum-ai-character__sheet-head">
+            {/* Header logo area: Official Aurrum Careers Logo Image */}
             <div className="aurrum-ai-character__sheet-head-avatar">
-              <span aria-hidden="true" className="character-monogram">Z</span>
+              <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers" className="aurrum-ai-character__head-logo-img" />
             </div>
             <div className="aurrum-ai-character__sheet-head-text">
-              <strong>Zenz AI Companion</strong>
-              <span role="status">{ai.status === 'thinking' ? 'Thinking…' : ai.status === 'listening' ? 'Listening…' : 'Aurrum Career Advisor'}</span>
+              <strong>Aurrum Career Counsellor</strong>
+              <span role="status">{ai.status === 'thinking' ? 'Thinking…' : ai.status === 'listening' ? 'Listening…' : 'Aurrum Careers'}</span>
             </div>
 
-            {/* Mode switch button: Full Body vs Half Body */}
             <button
               type="button"
               className="aurrum-ai-character__mode-toggle"
