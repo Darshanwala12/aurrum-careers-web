@@ -12,6 +12,7 @@ import VoiceControlPanel from './VoiceControlPanel.jsx';
 import { getVoiceSettings } from './voiceAdapter.js';
 import { characterState } from '../avatar/character/config.js';
 import './aurrum-ai-character.css';
+
 const CharacterCanvas = lazy(() => import('../avatar/character/CharacterCanvas.jsx'));
 
 const webglOK = (() => {
@@ -20,7 +21,6 @@ const webglOK = (() => {
 })();
 
 const HIGHLIGHT_CLASS = 'aurrum-ai-character-highlight';
-// Page persona buttons → knowledge topic (for the doodle object + section).
 const PERSONA_TOPIC = { working: 'professional', unsure: 'counselling' };
 
 function useIsCompact() {
@@ -35,53 +35,42 @@ function useIsCompact() {
   return compact;
 }
 
-/**
- * Aurrum AI career companion — the conversational layer living inside the
- * existing page. Between questions it narrates the scroll story (scene text);
- * once the visitor asks something it answers, draws the matching doodle
- * object, and softly highlights the related existing section.
- */
 export default function AiCharacter({ scene, overrideText, onOverrideConsumed, muted, onToggleMute, captionsOn, paused, reducedMotion, floating = false }) {
   const ai = useAiCharacter({ muted });
-  // Photoreal Anam cara-4 avatar: offered only when the token server is configured.
   const live = useLiveAvatar(ai, { muted });
   const viewportCompact = useIsCompact();
   const compact = floating || viewportCompact;
+
   const [expanded, setExpanded] = useState(false);
+  const [avatarMode, setAvatarMode] = useState('half'); // 'half' | 'full'
   const [draft, setDraft] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [voiceSettings, setVoiceSettings] = useState(getVoiceSettings);
-  const [avatar3d, setAvatar3d] = useState('loading'); // loading | ready | failed
+  const [avatar3d, setAvatar3d] = useState('loading');
   const inputRef = useRef(null);
   const launcherRef = useRef(null);
   const logRef = useRef(null);
 
-  // Scrolling to a new scene (after an answer has finished) returns the
-  // character to narrating that scene; conversation history is kept.
   const [dismissedFor, setDismissedFor] = useState(null);
   useEffect(() => {
-    if (!expanded && ai.status === 'idle' && ai.current) setDismissedFor(scene.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene.id]);
+    if (!expanded && ai.status === 'idle' && ai.current && scene?.id) setDismissedFor(scene.id);
+  }, [scene?.id, expanded, ai.status, ai.current]);
+
   useEffect(() => { setDismissedFor(null); }, [ai.current]);
 
   const pending = ai.status === 'thinking' || ai.status === 'listening';
-  const showAnswer = Boolean(ai.current) && dismissedFor !== scene.id && !pending;
+  const showAnswer = Boolean(ai.current) && dismissedFor !== scene?.id && !pending;
   const inConversation = showAnswer || pending;
-  // In a live session the real avatar does all the talking — no scripted narration.
-  const narration = useNarration(!inConversation && !paused && !live.isLive ? scene.text : '', { muted });
+  const narration = useNarration(!inConversation && !paused && !live.isLive ? (scene?.text || '') : '', { muted });
 
   const caption = showAnswer ? ai.spoken : pending ? ''
     : live.isLive ? 'Elena is listening. Just start talking, or type a question below.'
     : narration.displayed;
   const speaking = showAnswer ? ai.speaking : narration.speaking;
-  // Full sentence being spoken (the 3D lip-sync plans the whole line).
-  const state = inConversation ? ai.characterState : scene.state;
+  const state = inConversation ? ai.characterState : (scene?.state || 'idle');
   const character = characterState({ status: inConversation ? ai.status : 'idle', response: showAnswer ? ai.current : undefined, state, speaking: speaking && !paused });
 
-  // VOICE → UNDERSTANDING → VISUAL RESPONSE: softly activate the related
-  // existing section while it's being explained.
   const section = showAnswer ? ai.current?.section : null;
   useEffect(() => {
     if (!section || ai.status !== 'speaking') return;
@@ -91,21 +80,15 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
     return () => el.classList.remove(HIGHLIGHT_CLASS);
   }, [section, ai.status]);
 
-  // Jump to the relevant content automatically as soon as the answer names
-  // one — the character explains while the page brings that section into
-  // view, rather than making the visitor click "Show me" every time.
   useEffect(() => {
     if (!ai.current?.section) return;
     scrollToId(ai.current.section);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ai.current]);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [ai.history.length, showHistory]);
 
-  // A persona picked on the page: the character responds with that
-  // persona's existing reply copy, plus the matching visuals.
   useEffect(() => {
     if (!overrideText) return;
     const persona = personas.find((p) => p.reply === overrideText);
@@ -113,41 +96,20 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
     const entry = knowledge.find((k) => k.id === topic) ?? {};
     ai.say({ ...entry, id: topic ?? 'persona', answer: overrideText, section: null });
     onOverrideConsumed?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overrideText]);
 
-  // Paused (a11y bar) also silences any answer in progress.
-  useEffect(() => { if (paused) { ai.stop(); live.interrupt(); } }, [paused]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (paused) { ai.stop(); live.interrupt(); } }, [paused]);
+  useEffect(() => { if (compact && !expanded && live.isLive) live.end(); }, [compact, expanded, live.isLive]);
 
-  // Mobile: the live video lives in the sheet, so closing the sheet ends the session.
-  useEffect(() => { if (compact && !expanded && live.isLive) live.end(); }, [compact, expanded, live.isLive]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Esc closes the mobile sheet.
   useEffect(() => {
-    if (!expanded || !compact) return;
+    if (!expanded) return;
     inputRef.current?.focus();
-    const app = document.getElementById('root');
-    if (app) app.inert = true;
-    // The launcher is remounted when the portal closes; read its new ref.
-    const restoreFocus = () => launcherRef.current?.focus();
     const onKey = (e) => {
       if (e.key === 'Escape') setExpanded(false);
-      if (e.key === 'Tab') {
-        const items = [...document.querySelectorAll('.aurrum-ai-character--sheet button:not(:disabled), .aurrum-ai-character--sheet input')];
-        const first = items[0], last = items.at(-1);
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
-      }
     };
     window.addEventListener('keydown', onKey);
-    document.documentElement.classList.add('aurrum-ai-character-lock');
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.documentElement.classList.remove('aurrum-ai-character-lock');
-      if (app) app.inert = false;
-      restoreFocus();
-    };
-  }, [expanded, compact]);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [expanded]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -166,13 +128,9 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
   const followups = showAnswer && ai.current?.followups?.length ? ai.current.followups : SUGGESTED_PROMPTS;
   const busy = ai.status === 'speaking' || ai.status === 'thinking';
 
-  // Desktop: full body, as the primary visual of the panel. Mobile chat
-  // sheet: half body ('mid') — full body would be mostly empty space in a
-  // narrow phone-width column, and would risk cropping into the composer.
   const figure = () => (
-    <div className={`aurrum-ai-character__stage aurrum-ai-character__stage--${ai.status}`}>
+    <div className={`aurrum-ai-character__stage aurrum-ai-character__stage--${ai.status} ${avatarMode === 'half' ? 'is-half-body' : 'is-full-body'}`}>
       <div className={`aurrum-ai-character__avatar ${webglOK && avatar3d !== 'failed' ? 'is-3d' : ''} ${avatar3d === 'ready' ? 'is-ready' : ''} ${live.isLive ? 'is-live' : ''}`}>
-        {/* Photoreal live Elena (Anam cara-4 WebRTC stream). */}
         {live.status !== 'unavailable' && (
           <video
             ref={live.videoRef}
@@ -185,7 +143,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
         {!live.isLive && webglOK && avatar3d !== 'failed' && (
           <Suspense fallback={<span role="status">Preparing Elena…</span>}><CharacterCanvas
             character={character}
-            halfBody={compact}
+            halfBody={avatarMode === 'half'}
             reducedMotion={reducedMotion}
             paused={paused}
             onReady={() => setAvatar3d('ready')}
@@ -246,14 +204,14 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
 
       <div className="aurrum-ai-character__composer">
         <form className="aurrum-ai-character__voice" onSubmit={submit}>
-          <label htmlFor="aurrum-ai-input" className="aurrum-ai-character__sr">Type your question for Elena</label>
+          <label htmlFor="aurrum-ai-input" className="aurrum-ai-character__sr">Type your question for Zenz</label>
           <input
             id="aurrum-ai-input"
             ref={inputRef}
             type="text"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Ask Elena anything…"
+            placeholder="Ask Zenz anything…"
             autoComplete="off"
           />
           <button type="submit" className="aurrum-ai-character__send" disabled={!draft.trim()} aria-label="Ask">
@@ -261,15 +219,12 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
           </button>
         </form>
         <div className="aurrum-ai-character__controls" role="group" aria-label="Conversation controls">
-          {/* Desktop has Mute in the accessibility bar; the mobile sheet needs its own. */}
-          {compact && (
-            <button type="button" className="aurrum-ai-character__icon" onClick={onToggleMute} aria-pressed={muted} aria-label={muted ? 'Unmute' : 'Mute'} title={muted ? 'Unmute' : 'Mute'}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 9v6h4l5 4V5L8 9H4Z" />
-                {muted ? <path d="M16 9l5 6M21 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7" />}
-              </svg>
-            </button>
-          )}
+          <button type="button" className="aurrum-ai-character__icon" onClick={onToggleMute} aria-pressed={muted} aria-label={muted ? 'Unmute' : 'Mute'} title={muted ? 'Unmute' : 'Mute'}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+              {muted ? <path d="M16 9l5 6M21 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7" />}
+            </svg>
+          </button>
           <button type="button" className="aurrum-ai-character__icon" onClick={stopTalking} disabled={!busy && !live.isLive} aria-label="Stop speaking" title="Stop">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5" /></svg>
           </button>
@@ -328,52 +283,56 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
     </>
   );
 
-  // Mobile/tablet: a minimal floating chat-launcher (no reserved top-bar
-  // space — content uses the full screen) that opens a full-height chat
-  // sheet with its own header, matching a standard chatbot pattern.
-  if (compact) {
-    return (
-      <>
-        {/* Portaled to <body> — `.companion-stage` has backdrop-filter,
-            which (like `transform`) creates a new containing block for
-            position:fixed descendants. Left in place, the launcher was
-            anchoring to that top bar instead of the viewport, so "bottom"
-            landed near the top of the screen instead of the actual bottom. */}
-        {!expanded && createPortal(
-          <button
-            ref={launcherRef}
-            type="button"
-            className="aurrum-ai-character__launcher"
-            onClick={() => setExpanded(true)}
-            aria-label="Ask Zenz, your Aurrum career companion"
-            aria-expanded={expanded}
-          >
-            <Suspense fallback={<span>Elena</span>}><CharacterCanvas character={character} halfBody reducedMotion={reducedMotion} paused={paused} /></Suspense>
-            <span className="aurrum-ai-character__launcher-label">Ask Zenz</span>
-            {busy && <span className="aurrum-ai-character__launcher-dot" aria-hidden="true" />}
-          </button>,
-          document.body
-        )}
+  // Floating chatbot launcher + modern floating modal panel
+  return (
+    <>
+      {!expanded && createPortal(
+        <button
+          ref={launcherRef}
+          type="button"
+          className="aurrum-ai-character__launcher"
+          onClick={() => setExpanded(true)}
+          aria-label="Ask Zenz, your Aurrum career companion"
+          aria-expanded={expanded}
+        >
+          <div className="aurrum-ai-character__bar-avatar">
+            <Suspense fallback={<span>Elena</span>}>
+              <CharacterCanvas character={character} halfBody reducedMotion={reducedMotion} paused={paused} />
+            </Suspense>
+          </div>
+          <span className="aurrum-ai-character__launcher-label">Ask Zenz</span>
+          {busy && <span className="aurrum-ai-character__launcher-dot" aria-hidden="true" />}
+        </button>,
+        document.body
+      )}
 
-        {expanded && createPortal(
-          <div className="aurrum-ai-character aurrum-ai-character--sheet" role="dialog" aria-modal="true" aria-label="Conversation with Zenz">
-            <div className="aurrum-ai-character__sheet-head">
-              <div className="aurrum-ai-character__sheet-head-avatar">
-                <span aria-hidden="true" className="character-monogram">E</span>
-              </div>
-              <div className="aurrum-ai-character__sheet-head-text">
-                <strong>Zenz</strong>
-                <span role="status">{ai.status === 'thinking' ? 'Thinking…' : ai.status === 'listening' ? 'Listening…' : 'Aurrum career advisor'}</span>
-              </div>
-              <button type="button" className="aurrum-ai-character__close" onClick={() => setExpanded(false)} aria-label="Close conversation">✕</button>
+      {expanded && createPortal(
+        <div className="aurrum-ai-character aurrum-ai-character--modal" role="dialog" aria-modal="true" aria-label="Conversation with Zenz">
+          <div className="aurrum-ai-character__sheet-head">
+            <div className="aurrum-ai-character__sheet-head-avatar">
+              <span aria-hidden="true" className="character-monogram">Z</span>
             </div>
-            {full}
-          </div>,
-          document.body
-        )}
-      </>
-    );
-  }
+            <div className="aurrum-ai-character__sheet-head-text">
+              <strong>Zenz AI Companion</strong>
+              <span role="status">{ai.status === 'thinking' ? 'Thinking…' : ai.status === 'listening' ? 'Listening…' : 'Aurrum Career Advisor'}</span>
+            </div>
 
-  return <div className="aurrum-ai-character">{full}</div>;
+            {/* Mode switch button: Full Body vs Half Body */}
+            <button
+              type="button"
+              className="aurrum-ai-character__mode-toggle"
+              onClick={() => setAvatarMode(m => m === 'half' ? 'full' : 'half')}
+              title={`Switch to ${avatarMode === 'half' ? 'Full Body' : 'Half Body'} 3D Mode`}
+            >
+              {avatarMode === 'half' ? '👤 Full' : '🧘 Half'}
+            </button>
+
+            <button type="button" className="aurrum-ai-character__close" onClick={() => setExpanded(false)} aria-label="Close conversation">✕</button>
+          </div>
+          {full}
+        </div>,
+        document.body
+      )}
+    </>
+  );
 }

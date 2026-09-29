@@ -1,343 +1,549 @@
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap');
 
-/* Aurrum AI character layer. Every rule is scoped under .aurrum-ai-character
-   (or an .aurrum-ai-character-* utility class) so nothing leaks into the
-   existing site. Reuses the site's own tokens (--ink, --accent, --line…).
-
-   Layout: the panel is a fixed-height flex column that never scrolls. The
-   character's figure is the only flexible part — it grows or shrinks to
-   whatever height is left after the caption, composer and prompts. */
+/* Aurrum AI Floating Chatbot Modal & 3D Companion Styling */
 
 .aurrum-ai-character {
   --aic-hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
-  position: relative; width: 100%; min-height: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
   text-align: center;
 }
 
-/* ---------- Stage: character + doodle world + thoughts ---------- */
-.aurrum-ai-character__stage {
-  position: relative; width: 100%; max-width: 440px;
-  flex: 1 1 auto; min-height: 120px;
-  display: flex; justify-content: center; align-items: flex-end;
-  padding-top: 1.4rem;
-}
-.aurrum-ai-character__avatar { position: relative; height: 100%; max-height: 300px; transition: transform 0.6s var(--ease); }
-.aurrum-ai-character__avatar > svg[role="img"] { height: 100%; width: auto; display: block; }
-.aurrum-ai-character__fallback { height: 100%; display: flex; justify-content: center; }
-.aurrum-ai-character__fallback > svg { height: 100%; width: auto; display: block; }
-/* 3D Elena: a portrait-shaped canvas the height of the stage. The illustrated
-   fallback sits on top while the model loads, then the canvas fades in. */
-.aurrum-ai-character__avatar.is-3d { aspect-ratio: 4 / 5; }
-.aurrum-ai-character__avatar.is-3d .aurrum-ai-character__fallback { position: absolute; inset: 0; }
-.aurrum-ai-character__3d { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s var(--ease); }
-.aurrum-ai-character__avatar.is-ready .aurrum-ai-character__3d { opacity: 1; }
-.aurrum-ai-character__3d canvas { display: block; width: 100% !important; height: 100% !important; }
-.aurrum-ai-character__stage--listening .aurrum-ai-character__avatar { transform: translateY(-4px) scale(1.02); }
-.aurrum-ai-character__stage--thinking .aurrum-ai-character__avatar { transform: rotate(-1.5deg); }
-/* Shift the character left when a doodle object is beside it, so it can point at it. */
-.aurrum-ai-character__stage:has(.aurrum-ai-character__doodle) .aurrum-ai-character__avatar { transform: translateX(-24%); }
-
-/* Neutral loading placeholder — shown only until the 3D model is ready, or
-   on the rare browser with no WebGL at all. No character illustration. */
-.aurrum-ai-character__fallback--placeholder { align-items: center; border-radius: 999px; overflow: hidden; }
-.aurrum-ai-character__fallback-pulse {
-  display: block; width: 60%; height: 60%; margin: auto; border-radius: 999px;
-  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.25), rgba(var(--accent-rgb), 0.05) 70%);
-  animation: aurrum-pulse 1.6s ease-in-out infinite;
-}
-@keyframes aurrum-pulse { 0%, 100% { opacity: 0.5; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1); } }
-
-/* Mobile: the 3D canvas at icon size, used both by the floating launcher
-   and the sheet header (replaces the old full-width bar's SVG icon). */
-.aurrum-ai-character__bar-avatar { position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-.aurrum-ai-character__bar-avatar .aurrum-ai-character__3d { position: absolute; inset: 0; opacity: 1; }
-.aurrum-ai-character__bar-avatar .aurrum-ai-character__3d canvas { width: 100% !important; height: 100% !important; }
-
-/* Floating chat launcher — standard chatbot-widget position (fixed,
-   bottom-right), minimal: just the avatar in a circle + a busy pulse dot.
-   Replaces the old full-width top bar entirely. */
+/* Floating Launcher Button - Bottom Right */
 .aurrum-ai-character__launcher {
-  position: fixed; right: 1rem; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); z-index: 40;
-  width: 3.4rem; height: 3.4rem; border-radius: 50%; padding: 0; border: 1px solid var(--line);
-  background: var(--paper); box-shadow: 0 10px 28px -12px rgba(0, 0, 0, 0.35); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; overflow: visible;
-}
-.aurrum-ai-character__launcher .aurrum-ai-character__bar-avatar { width: 100%; height: 100%; }
-.aurrum-ai-character__launcher-dot {
-  position: absolute; top: -2px; right: -2px; width: 0.75rem; height: 0.75rem; border-radius: 50%;
-  background: var(--accent); border: 2px solid var(--paper); animation: aurrum-pulse 1.2s ease-in-out infinite;
+  position: fixed;
+  right: 1.5rem;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 9990;
+  height: 3.6rem;
+  padding: 0 1.25rem 0 0.5rem;
+  border-radius: 50px;
+  border: 2px solid var(--gm-gold, #cd9228);
+  background: #FFFFFF;
+  color: #181818;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 0 16px rgba(205, 146, 40, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Chat sheet header: avatar thumb + name/status + close — a minimal
-   chatbot-style title bar instead of the avatar floating loose in the panel. */
-.aurrum-ai-character__sheet-head {
-  display: flex; align-items: center; gap: 0.7rem; width: 100%; max-width: 440px;
-  padding-bottom: 0.6rem; margin-bottom: 0.2rem; border-bottom: 1px solid var(--line);
+.aurrum-ai-character__launcher:hover {
+  transform: translateY(-3px) scale(1.03);
+  border-color: #b37e1e;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.25), 0 0 24px rgba(205, 146, 40, 0.4);
 }
-.aurrum-ai-character__sheet-head-avatar { width: 2.6rem; height: 2.6rem; flex-shrink: 0; }
-.aurrum-ai-character__sheet-head-avatar .aurrum-ai-character__bar-avatar { width: 100%; height: 100%; }
-.aurrum-ai-character__sheet-head-text { display: flex; flex-direction: column; text-align: left; min-width: 0; }
-.aurrum-ai-character__sheet-head-text strong { font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
-.aurrum-ai-character__sheet-head-text span { font-size: 0.75rem; color: var(--muted); }
-.aurrum-ai-character--sheet .aurrum-ai-character__close { position: static; margin-left: auto; }
+
+.aurrum-ai-character__launcher-label {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #181818;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.aurrum-ai-character__bar-avatar {
+  position: relative;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--gm-border, #DDD6C8);
+}
+
+.aurrum-ai-character__bar-avatar .aurrum-ai-character__3d {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+}
+
+.aurrum-ai-character__bar-avatar .aurrum-ai-character__3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.aurrum-ai-character__launcher-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--gm-gold, #cd9228);
+  border: 2px solid #FFFFFF;
+  animation: aurrum-pulse 1.2s ease-in-out infinite;
+}
+
+/* Floating Chatbot Modal Panel - NOT full screen! */
+.aurrum-ai-character--modal {
+  position: fixed;
+  right: 1.5rem;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 9999;
+  width: 410px;
+  max-width: calc(100vw - 2rem);
+  height: 620px;
+  max-height: calc(100vh - 3rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem;
+  background: #FAF7F2;
+  color: #181818;
+  border: 2px solid var(--gm-gold, #cd9228);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), 0 0 25px rgba(205, 146, 40, 0.2);
+  animation: aic-modal-entrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes aic-modal-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Title Bar */
+.aurrum-ai-character__sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.2rem;
+  border-bottom: 1.5px solid var(--gm-border, #E2DDD5);
+}
+
+.aurrum-ai-character__sheet-head-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--gm-gold, #cd9228);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.aurrum-ai-character__sheet-head-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-width: 0;
+}
+
+.aurrum-ai-character__sheet-head-text strong {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #181818;
+}
+
+.aurrum-ai-character__sheet-head-text span {
+  font-size: 0.76rem;
+  color: #555555;
+  font-weight: 600;
+}
+
+/* 3D Mode Toggle (Full vs Half Body) */
+.aurrum-ai-character__mode-toggle {
+  background: #EFEAE0;
+  border: 1px solid var(--gm-gold, #cd9228);
+  color: #8c6012;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 0.65rem;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.aurrum-ai-character__mode-toggle:hover {
+  background: var(--gm-gold, #cd9228);
+  color: #FFFFFF;
+}
+
+.aurrum-ai-character__close {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--gm-border, #E2DDD5);
+  background: #FFFFFF;
+  color: #181818;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.aurrum-ai-character__close:hover {
+  background: var(--gm-gold, #cd9228);
+  color: #FFFFFF;
+  border-color: var(--gm-gold, #cd9228);
+}
+
+/* Stage & Avatar Sizing */
+.aurrum-ai-character__stage {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-top: 0.5rem;
+}
+
+.aurrum-ai-character__avatar {
+  position: relative;
+  height: 100%;
+  max-height: 260px;
+  transition: transform 0.6s ease;
+}
+
+.aurrum-ai-character__stage.is-full-body .aurrum-ai-character__avatar {
+  max-height: 320px;
+}
+
+.aurrum-ai-character__stage.is-half-body .aurrum-ai-character__avatar {
+  max-height: 220px;
+}
+
+.aurrum-ai-character__avatar.is-3d {
+  aspect-ratio: 4 / 5;
+}
+
+.aurrum-ai-character__avatar.is-3d .aurrum-ai-character__fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.aurrum-ai-character__3d {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.aurrum-ai-character__avatar.is-ready .aurrum-ai-character__3d {
+  opacity: 1;
+}
+
+.aurrum-ai-character__3d canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.aurrum-ai-character__fallback {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
 
 .aurrum-ai-character__accent {
-  position: absolute; left: -26px; top: 12%; width: 42px; color: var(--accent);
-  fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round;
-}
-.aurrum-ai-character__accent path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: aic-draw 1.2s var(--ease) 0.4s forwards; }
-.aurrum-ai-character__stage--speaking .aurrum-ai-character__accent path { animation: aic-draw 1s var(--ease) forwards, aic-wiggle 2.4s ease-in-out 1s infinite; }
-
-/* Doodle world object */
-.aurrum-ai-character__doodle {
-  position: absolute; right: 0; top: 18%; width: 34%; max-width: 140px;
-  color: var(--ink); animation: aic-pop 0.6s var(--ease) both;
-  pointer-events: none;
-}
-.aurrum-ai-character__doodle-svg { width: 100%; height: auto; overflow: visible; display: block; }
-.aurrum-ai-character__doodle-svg [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; animation: aic-draw 1.1s var(--ease) forwards; }
-.aurrum-ai-character__doodle-svg [pathLength]:nth-child(2) { animation-delay: 0.12s; }
-.aurrum-ai-character__doodle-svg [pathLength]:nth-child(3) { animation-delay: 0.24s; }
-.aurrum-ai-character__doodle-svg [pathLength]:nth-child(n+4) { animation-delay: 0.36s; }
-.aurrum-ai-character__tick { stroke: var(--accent) !important; animation-delay: 1.3s !important; }
-.aurrum-ai-character__arrow { stroke: var(--accent) !important; animation-delay: 0.9s !important; }
-.aurrum-ai-character__needle { stroke: var(--accent) !important; transform-origin: 56px 60px; }
-.aurrum-ai-character__doodle.is-active .aurrum-ai-character__needle { animation: aic-draw 1s var(--ease) forwards, aic-needle 2.6s ease-in-out 1s infinite; }
-.aurrum-ai-character__sweep {
-  fill: var(--accent); opacity: 0.18; transform-box: fill-box; transform-origin: left center;
-  animation: aic-sweep 1.2s var(--ease) 0.8s both;
-}
-.aurrum-ai-character__doodle.is-active .aurrum-ai-character__sweep { animation: aic-sweep 1.2s var(--ease) 0.8s both, aic-sweep-move 3.2s ease-in-out 2s infinite; }
-.aurrum-ai-character__note {
-  position: absolute; left: 50%; bottom: -1.8rem; transform: translateX(-50%) rotate(-3deg);
-  white-space: nowrap; font-family: var(--aic-hand); font-size: 1.1rem; line-height: 1; color: var(--accent);
-  animation: aic-fade-up 0.5s var(--ease) 1.1s both;
-}
-.aurrum-ai-character__note::after {
-  content: ''; position: absolute; left: 4%; right: 4%; bottom: -4px; height: 2px; border-radius: 2px;
-  background: currentColor; transform-origin: left; animation: aic-grow 0.5s var(--ease) 1.5s both;
+  position: absolute;
+  left: -26px;
+  top: 12%;
+  width: 42px;
+  color: var(--gm-gold, #cd9228);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
 }
 
-/* Thought bubble / listening indicator */
-.aurrum-ai-character__thought {
-  position: absolute; right: 4%; top: 0; max-width: 60%;
-  display: flex; align-items: center; gap: 0.4rem;
-  padding: 0.4rem 0.75rem; border: 1.5px solid var(--ink); border-radius: 18px 18px 18px 4px;
-  background: rgba(var(--paper-rgb), 0.92); color: var(--ink);
-  font-family: var(--aic-hand); font-size: 1.1rem; line-height: 1.1;
-  animation: aic-pop 0.4s var(--ease) both; z-index: 1;
-}
-.aurrum-ai-character__scribble { width: 38px; flex-shrink: 0; fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
-.aurrum-ai-character__scribble path { stroke-dasharray: 1; animation: aic-scribble 1.4s ease-in-out infinite; }
-.aurrum-ai-character__thought-dot {
-  position: absolute; left: -12px; bottom: -8px; width: 9px; height: 9px; border-radius: 50%;
-  border: 1.5px solid var(--ink); background: var(--paper);
-}
-.aurrum-ai-character__thought-dot--sm { left: -20px; bottom: -16px; width: 5px; height: 5px; }
-.aurrum-ai-character__thought--listen { border-color: var(--accent); }
-.aurrum-ai-character__wave { display: inline-flex; gap: 3px; align-items: center; height: 16px; }
-.aurrum-ai-character__wave i { width: 3px; height: 100%; border-radius: 2px; background: var(--accent); animation: aic-wave 0.9s ease-in-out infinite; }
-.aurrum-ai-character__wave i:nth-child(2) { animation-delay: 0.15s; }
-.aurrum-ai-character__wave i:nth-child(3) { animation-delay: 0.3s; }
-.aurrum-ai-character__wave i:nth-child(4) { animation-delay: 0.45s; }
-
-/* ---------- Photoreal live avatar (HeyGen LiveAvatar stream) ---------- */
-.aurrum-ai-character__video {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
-  border-radius: 20px; background: #0d1a1f; opacity: 0; pointer-events: none;
-  transition: opacity 0.6s var(--ease);
-}
-.aurrum-ai-character__video.is-live { opacity: 1; }
-.aurrum-ai-character__avatar.is-live { aspect-ratio: 4 / 5; box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.45); border-radius: 20px; }
-.aurrum-ai-character__avatar.is-live .aurrum-ai-character__accent { left: -30px; }
-
-.aurrum-ai-character__live {
-  flex-shrink: 0; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.45rem;
-  font-size: 0.8rem; color: var(--ink);
-}
-.aurrum-ai-character__live-start {
-  padding: 0.55rem 1.15rem; border-radius: 999px; border: none; cursor: pointer;
-  background: var(--ink); color: var(--paper); font: inherit; font-size: 0.85rem; font-weight: 500;
-  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
-}
-.aurrum-ai-character__live-start:hover:not(:disabled) { transform: translateY(-1px); }
-.aurrum-ai-character__live-start:disabled { opacity: 0.6; cursor: progress; }
-.aurrum-ai-character__live-btn {
-  padding: 0.32rem 0.8rem; border-radius: 999px; border: 1px solid var(--line); background: none;
-  color: var(--ink); font: inherit; font-size: 0.76rem; cursor: pointer;
-}
-.aurrum-ai-character__live-btn:hover { border-color: var(--accent); color: var(--accent); }
-.aurrum-ai-character__live-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-.aurrum-ai-character__live-dot { width: 8px; height: 8px; border-radius: 50%; background: #d92d20; animation: aic-blink 1.4s steps(2) infinite; }
-.aurrum-ai-character__live-err { flex-basis: 100%; font-size: 0.74rem; color: #b42318; }
-
-/* ---------- Caption: reserves 3 lines so the layout doesn't jump ---------- */
+/* Caption Text */
 .aurrum-ai-character__caption {
-  flex-shrink: 0; width: 100%; max-width: 44ch; min-height: 4.6em; margin: 0;
-  font-size: 0.98rem; line-height: 1.5; color: var(--ink);
-  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 44ch;
+  min-height: 4em;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #181818;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.aurrum-ai-character__cursor { color: var(--accent); animation: aic-blink 1s steps(2) infinite; margin-left: 1px; }
 
-/* ---------- Composer: input + send + icon controls in one row ---------- */
-.aurrum-ai-character__composer { flex-shrink: 0; display: flex; align-items: center; gap: 0.5rem; width: 100%; max-width: 440px; }
+.aurrum-ai-character__cursor {
+  color: var(--gm-gold, #cd9228);
+  animation: aic-blink 1s steps(2) infinite;
+  margin-left: 1px;
+}
+
+.aurrum-ai-character__greeting {
+  margin: -0.1rem 0 0.1rem;
+  color: var(--gm-gold-dark, #8c6012);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* Composer & Voice Inputs */
+.aurrum-ai-character__composer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
 .aurrum-ai-character__voice {
-  flex: 1 1 auto; min-width: 0; display: flex; align-items: center;
-  border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, 0.75);
-  padding: 0.2rem 0.2rem 0.2rem 1rem; transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--gm-border, #E2DDD5);
+  border-radius: 999px;
+  background: #FFFFFF;
+  padding: 0.2rem 0.2rem 0.2rem 0.9rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-:root[data-theme="dark"] .aurrum-ai-character__voice { background: rgba(255, 255, 255, 0.06); }
-.aurrum-ai-character__voice:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12); }
+
+.aurrum-ai-character__voice:focus-within {
+  border-color: var(--gm-gold, #cd9228);
+  box-shadow: 0 0 0 3px rgba(205, 146, 40, 0.2);
+}
+
 .aurrum-ai-character__voice input {
-  flex: 1 1 auto; min-width: 0; border: none; background: none; outline: none;
-  color: var(--ink); font: inherit; font-size: 0.9rem; padding: 0.45rem 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: #181818;
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.4rem 0;
 }
+
 .aurrum-ai-character__send {
-  flex-shrink: 0; width: 2.1rem; height: 2.1rem; border-radius: 50%; border: none; cursor: pointer;
-  background: var(--accent); color: #fff; display: grid; place-items: center;
-  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease), background 0.3s var(--ease);
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--gm-gold, #cd9228);
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
-.aurrum-ai-character__send:hover:not(:disabled) { background: #c14a27; transform: translateX(2px); }
-.aurrum-ai-character__send:disabled { opacity: 0.35; cursor: default; }
-.aurrum-ai-character__send svg, .aurrum-ai-character__icon svg {
-  width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+
+.aurrum-ai-character__send:hover:not(:disabled) {
+  background: #b37e1e;
+  transform: translateX(2px);
 }
-.aurrum-ai-character__controls { flex-shrink: 0; display: flex; gap: 0.3rem; }
+
+.aurrum-ai-character__send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.aurrum-ai-character__controls {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.3rem;
+}
+
 .aurrum-ai-character__icon {
-  width: 2.3rem; height: 2.3rem; border-radius: 50%; border: 1px solid var(--line);
-  background: none; color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 0.85rem;
-  transition: border-color 0.3s var(--ease), color 0.3s var(--ease), background 0.3s var(--ease);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--gm-border, #E2DDD5);
+  background: #FFFFFF;
+  color: #181818;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
-.aurrum-ai-character__icon:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.aurrum-ai-character__icon:disabled { opacity: 0.35; cursor: default; }
-.aurrum-ai-character__icon[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
-.aurrum-ai-character :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---------- Suggested questions: max two rows, never scroll ---------- */
+.aurrum-ai-character__icon:hover:not(:disabled) {
+  border-color: var(--gm-gold, #cd9228);
+  color: var(--gm-gold, #cd9228);
+}
+
+.aurrum-ai-character__icon:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.aurrum-ai-character__icon[aria-pressed="true"] {
+  border-color: var(--gm-gold, #cd9228);
+  color: var(--gm-gold, #cd9228);
+  background: rgba(205, 146, 40, 0.1);
+}
+
+/* Suggested Questions Prompts */
 .aurrum-ai-character__prompts {
-  flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
-  width: 100%; max-width: 460px; max-height: 4.4rem; overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  width: 100%;
+  max-height: 4.2rem;
+  overflow: hidden;
 }
+
 .aurrum-ai-character__prompt {
-  padding: 0.38rem 0.8rem; border-radius: 999px; border: 1px solid var(--line); background: var(--paper-2);
-  color: var(--ink); font: inherit; font-size: 0.76rem; line-height: 1.3; cursor: pointer; transition: all 0.3s var(--ease);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--gm-border, #E2DDD5);
+  background: #FFFFFF;
+  color: #181818;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.aurrum-ai-character__prompt:hover { border-color: var(--accent); color: var(--accent); }
-.aurrum-ai-character__prompt--accent { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
 
-/* ---------- History: an overlay over the stage, so it never adds height ---------- */
+.aurrum-ai-character__prompt:hover {
+  border-color: var(--gm-gold, #cd9228);
+  color: var(--gm-gold, #cd9228);
+}
+
+.aurrum-ai-character__prompt--accent {
+  border-color: var(--gm-gold, #cd9228);
+  color: var(--gm-gold-dark, #8c6012);
+  background: rgba(205, 146, 40, 0.12);
+  font-weight: 700;
+}
+
+/* History overlay */
 .aurrum-ai-character__history {
-  position: absolute; inset: 0 0 auto 0; z-index: 3; margin: 0 auto; width: 100%; max-width: 440px;
-  max-height: 62%; display: flex; flex-direction: column; text-align: left; font-size: 0.82rem;
-  background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
-  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.3); animation: aic-pop 0.3s var(--ease) both;
+  position: absolute;
+  inset: 3.5rem 0.8rem 4.5rem 0.8rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  font-size: 0.82rem;
+  background: #FFFFFF;
+  border: 1.5px solid var(--gm-gold, #cd9228);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
+
 .aurrum-ai-character__history-head {
-  display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.6rem 0.5rem 1rem;
-  border-bottom: 1px solid var(--line); font-weight: 600; color: var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--gm-border, #E2DDD5);
+  font-weight: 800;
+  color: #181818;
 }
-.aurrum-ai-character__history-head .aurrum-ai-character__icon { width: 1.9rem; height: 1.9rem; }
+
 .aurrum-ai-character__history ol {
-  list-style: none; margin: 0; padding: 0.7rem; overflow-y: auto; overscroll-behavior: contain;
-  display: flex; flex-direction: column; gap: 0.4rem;
-}
-.aurrum-ai-character__history li { padding: 0.45rem 0.7rem; border-radius: 12px; max-width: 88%; line-height: 1.4; }
-.aurrum-ai-character__history li.is-assistant { background: var(--paper-2); color: var(--ink); align-self: flex-start; }
-.aurrum-ai-character__history li.is-user { background: var(--accent); color: #fff; align-self: flex-end; }
-
-.aurrum-ai-character__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.aurrum-ai-character__greeting { margin: -.15rem 0 .05rem; color: var(--accent); font-size: .78rem; font-weight: 600; }
-
-/* Compact, persistent voice settings for Zenz. */
-.zenz-voice-panel { margin: .65rem 0; padding: 1rem; border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line)); border-radius: 18px; background: color-mix(in srgb, var(--paper) 92%, #dffaf6); box-shadow: 0 16px 38px -28px rgba(6, 30, 43, .7); display: grid; gap: .72rem; animation: zenz-voice-in .26s var(--ease) both; }
-.zenz-voice-panel header { display: flex; align-items: start; justify-content: space-between; gap: .75rem; }.zenz-voice-panel header span { color: var(--accent); font-size: .65rem; font-weight: 800; letter-spacing: .12em; }.zenz-voice-panel h3 { margin: .15rem 0 0; font-size: 1.03rem; }.zenz-voice-panel header button { border: 0; background: transparent; color: var(--ink); font-size: 1.4rem; line-height: 1; cursor: pointer; }
-.zenz-voice-panel label { display: grid; gap: .3rem; color: var(--muted); font-size: .75rem; font-weight: 700; }.zenz-voice-panel select,.zenz-voice-panel input:not([type="range"]):not([type="checkbox"]) { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); padding: .55rem .65rem; font: inherit; }
-.zenz-voice-panel__profiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; }.zenz-voice-panel__profiles button { border: 1px solid var(--line); border-radius: 9px; padding: .46rem .28rem; background: var(--paper); color: var(--ink); font: inherit; font-size: .67rem; cursor: pointer; }.zenz-voice-panel__profiles button.is-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--paper)); color: var(--accent); }
-.zenz-voice-panel__sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; }.zenz-voice-panel input[type="range"] { accent-color: var(--accent); width: 100%; }.zenz-voice-panel__preview { display: flex; align-items: center; gap: .55rem; }.zenz-voice-panel__preview button { flex: 0 0 auto; border: 0; border-radius: 999px; background: var(--ink); color: var(--paper); padding: .52rem .72rem; font: inherit; font-size: .76rem; cursor: pointer; }.zenz-voice-panel__preview span,.zenz-voice-panel__upload small { color: var(--muted); font-size: .68rem; line-height: 1.35; }
-.zenz-voice-panel__upload { display: grid; gap: .42rem; padding-top: .68rem; border-top: 1px solid var(--line); }.zenz-voice-panel__upload strong { font-size: .76rem; color: var(--ink); }.zenz-voice-panel__upload label { display: flex; align-items: center; gap: .38rem; font-weight: 500; }.zenz-voice-panel__upload input[type="file"] { max-width: 100%; font-size: .7rem; }
-
-/* ---------- Section highlight on the EXISTING page (only adds an outline glow) ---------- */
-.aurrum-ai-character-highlight { position: relative; }
-.aurrum-ai-character-highlight::before {
-  content: ''; position: absolute; inset: 0.6rem; border-radius: 18px; pointer-events: none;
-  border: 2px dashed rgba(var(--accent-rgb), 0.55); background: rgba(var(--accent-rgb), 0.04);
-  animation: aic-fade-in 0.6s var(--ease) both;
+  list-style: none;
+  margin: 0;
+  padding: 0.7rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-/* ---------- Short desktop windows: tighten so everything still fits ---------- */
-@media (min-width: 900px) and (max-height: 760px) {
-  .aurrum-ai-character { gap: 0.5rem; }
-  .aurrum-ai-character__caption { font-size: 0.9rem; min-height: 4.2em; }
-  .aurrum-ai-character__prompts { max-height: 2.1rem; }
+.aurrum-ai-character__history li {
+  padding: 0.5rem 0.8rem;
+  border-radius: 10px;
+  max-width: 88%;
+  line-height: 1.4;
 }
 
-/* ---------- Mobile/tablet: compact bar + full-screen sheet ---------- */
-.aurrum-ai-character--bar { flex-direction: row; align-items: center; gap: 0.6rem; text-align: left; }
-.aurrum-ai-character__bar-open { flex-shrink: 0; padding: 0; border: none; background: none; cursor: pointer; line-height: 0; }
-.aurrum-ai-character__bar-open svg { width: 34px; height: 54px; }
-.aurrum-ai-character__bar-caption {
-  flex: 1 1 auto; min-width: 0; margin: 0; font-size: 0.8rem; line-height: 1.3; color: var(--ink);
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.aurrum-ai-character__bar-ask {
-  flex-shrink: 0; padding: 0.45rem 0.95rem; border-radius: 999px; border: none; cursor: pointer;
-  background: var(--accent); color: #fff; font: inherit; font-size: 0.8rem; font-weight: 500;
+.aurrum-ai-character__history li.is-assistant {
+  background: #F5F1EA;
+  color: #181818;
+  align-self: flex-start;
 }
 
-/* The sheet is a no-scroll column the height of the screen; the figure absorbs any spare/missing space. */
-.aurrum-ai-character--sheet {
-  position: fixed; inset: 0; z-index: 60; height: 100vh; height: 100dvh; overflow: hidden;
-  gap: 0.6rem; justify-content: flex-start;
-  padding: max(3.2rem, calc(env(safe-area-inset-top) + 2.8rem)) 1rem max(1rem, env(safe-area-inset-bottom));
-  background: var(--paper); animation: aic-sheet 0.45s var(--ease) both;
+.aurrum-ai-character__history li.is-user {
+  background: var(--gm-gold, #cd9228);
+  color: #FFFFFF;
+  align-self: flex-end;
+  font-weight: 600;
 }
-.aurrum-ai-character__close {
-  position: absolute; top: max(0.75rem, env(safe-area-inset-top)); right: 0.75rem;
-  width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1px solid var(--line);
-  background: none; color: var(--ink); font-size: 1rem; cursor: pointer;
-}
-.aurrum-ai-character--sheet .aurrum-ai-character__avatar { max-height: 260px; }
-.aurrum-ai-character--sheet .aurrum-ai-character__caption { font-size: 0.95rem; }
-.aurrum-ai-character--sheet .aurrum-ai-character__voice input { font-size: 16px; } /* stops iOS zoom-on-focus */
-.aurrum-ai-character--sheet .aurrum-ai-character__prompts { max-height: 4.3rem; }
-html.aurrum-ai-character-lock, html.aurrum-ai-character-lock body { overflow: hidden; }
 
+.aurrum-ai-character__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@keyframes aurrum-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes aic-blink {
+  50% { opacity: 0; }
+}
+
+/* Mobile Responsiveness */
 @media (max-width: 480px) {
-  .aurrum-ai-character--sheet .aurrum-ai-character__composer { flex-wrap: wrap; justify-content: center; }
-  .aurrum-ai-character--sheet .aurrum-ai-character__voice { flex-basis: 100%; }
-}
-@media (max-width: 360px) {
-  .aurrum-ai-character__doodle { width: 32%; }
-  .aurrum-ai-character__thought { font-size: 0.95rem; max-width: 70%; }
-  .aurrum-ai-character__icon { width: 2.1rem; height: 2.1rem; }
-  .aurrum-ai-character__composer { gap: 0.35rem; }
-}
-@media (max-height: 620px) {
-  .aurrum-ai-character--sheet .aurrum-ai-character__prompts { max-height: 2.1rem; }
-  .aurrum-ai-character--sheet .aurrum-ai-character__caption { font-size: 0.85rem; min-height: 4em; }
-}
+  .aurrum-ai-character--modal {
+    right: 0.625rem;
+    bottom: calc(0.625rem + env(safe-area-inset-bottom, 0px));
+    width: calc(100vw - 1.25rem);
+    height: 520px;
+    max-height: calc(100vh - 1.5rem);
+    border-radius: 16px;
+    padding: 1rem;
+  }
 
-/* ---------- Keyframes ---------- */
-@keyframes aic-draw { to { stroke-dashoffset: 0; } }
-@keyframes aic-pop { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
-@keyframes aic-fade-up { from { opacity: 0; transform: translateX(-50%) translateY(6px) rotate(-3deg); } }
-@keyframes aic-fade-in { from { opacity: 0; } }
-@keyframes aic-grow { from { transform: scaleX(0); } }
-@keyframes aic-sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes aic-sweep-move { 0%, 100% { translate: 0 0; } 50% { translate: 0 20px; } }
-@keyframes aic-needle { 0%, 100% { rotate: 0deg; } 30% { rotate: 14deg; } 60% { rotate: -8deg; } }
-@keyframes aic-wiggle { 0%, 100% { rotate: 0deg; } 50% { rotate: -6deg; } }
-@keyframes aic-scribble { 0% { stroke-dashoffset: 1; } 50% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -1; } }
-@keyframes aic-wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
-@keyframes aic-blink { 50% { opacity: 0; } }
-@keyframes aic-sheet { from { opacity: 0; transform: translateY(24px); } }
-@keyframes zenz-voice-in { from { opacity: 0; transform: translateY(-7px); } to { opacity: 1; transform: translateY(0); } }
+  .aurrum-ai-character__launcher {
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    height: 3.2rem;
+    padding: 0 1rem 0 0.4rem;
+  }
 
-/* Reduced motion: show every doodle fully drawn, no loops. */
-@media (prefers-reduced-motion: reduce) {
-  .aurrum-ai-character *, .aurrum-ai-character-highlight::before { animation: none !important; transition: none !important; }
-  .aurrum-ai-character [pathLength] { stroke-dashoffset: 0 !important; }
+  .aurrum-ai-character__launcher-label {
+    font-size: 0.85rem;
+  }
+
+  .aurrum-ai-character__stage {
+    min-height: 100px;
+  }
+
+  .aurrum-ai-character__stage.is-full-body .aurrum-ai-character__avatar {
+    max-height: 240px;
+  }
+
+  .aurrum-ai-character__stage.is-half-body .aurrum-ai-character__avatar {
+    max-height: 180px;
+  }
+
+  .aurrum-ai-character__caption {
+    font-size: 0.86rem;
+    min-height: 3.6em;
+  }
 }
-.motion-reduced .aurrum-ai-character *, .motion-reduced .aurrum-ai-character-highlight::before { animation: none !important; transition: none !important; }
-.motion-reduced .aurrum-ai-character [pathLength] { stroke-dashoffset: 0 !important; }
