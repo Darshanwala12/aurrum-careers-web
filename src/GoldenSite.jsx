@@ -20,8 +20,8 @@ export default function GoldenSite() {
    const ctx = gsap.context(() => {
     gsap.from('.gz-hero h1 > span', { y: 70, rotateX: -35, opacity: 0, transformPerspective: 900, stagger: .12, duration: 1, ease: 'power3.out' });
     gsap.from('.gz-playground', { scale: .8, rotate: 8, opacity: 0, duration: 1.3, ease: 'back.out(1.2)' });
-    gsap.to('.gz-sculpture', { y: -17, rotationZ: 3, duration: 2.6, repeat: -1, yoyo: true, ease: 'sine.inOut' });
-    gsap.to('.gz-sticker', { y: -12, rotation: '+=3', duration: 2.2, stagger: .35, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+    gsap.to('.gz-mascot', { y: -10, duration: 2.6, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+    gsap.to('.gz-sticker', { y: -4, duration: 2.2, stagger: .35, repeat: -1, yoyo: true, ease: 'sine.inOut' });
     gsap.to('.gz-spark', { rotation: 360, duration: 24, repeat: -1, ease: 'none' });
     gsap.to('.gz-marquee > div', { xPercent: -50, duration: 35, repeat: -1, ease: 'none' });
     gsap.to('.gz-progress', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom bottom', scrub: true } });
@@ -35,10 +35,11 @@ export default function GoldenSite() {
     gsap.to('.ac-end-star', { rotation: 160, y: -60, scrollTrigger: { trigger: '.ac-end', start: 'top bottom', end: 'bottom top', scrub: 1 } });
     const playground = root.current.querySelector('.gz-playground');
     if (playground && window.matchMedia('(pointer:fine)').matches) {
-     const tiltX = gsap.quickTo(playground, 'rotationX', { duration: .6 });
-     const tiltY = gsap.quickTo(playground, 'rotationY', { duration: .6 });
-     const move = event => { const box = playground.getBoundingClientRect(); tiltX(-(event.clientY-box.top-box.height/2)/40); tiltY((event.clientX-box.left-box.width/2)/35); };
-     const leave = () => { tiltX(0); tiltY(0); };
+     const mascot = playground.querySelector('.gz-mascot');
+     const tiltX = gsap.quickTo(mascot, 'rotationX', { duration: .6 });
+     const tiltY = gsap.quickTo(mascot, 'rotationY', { duration: .6 });
+     const move = event => { const box = playground.getBoundingClientRect(); tiltX(-12-(event.clientY-box.top-box.height/2)/70); tiltY(-23+(event.clientX-box.left-box.width/2)/60); };
+     const leave = () => { tiltX(-12); tiltY(-23); };
      playground.addEventListener('pointermove', move); playground.addEventListener('pointerleave', leave);
      return () => { playground.removeEventListener('pointermove', move); playground.removeEventListener('pointerleave', leave); };
     }
