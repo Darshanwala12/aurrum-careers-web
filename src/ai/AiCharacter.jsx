@@ -75,7 +75,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
     const timer = setTimeout(() => {
       ai.say({
         id: 'auto-greeting',
-        answer: 'Hello! Welcome to Aurrum Careers. I am your personalised career counsellor. From finding the right role to preparing for the interview, I am here to guide you.',
+        answer: 'Hello! Welcome to Aurrum Careers. I am your personalised career companion. From finding the right role to preparing for the interview, I am here to guide you.',
         section: null
       });
     }, 900);
@@ -303,7 +303,7 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
             <li className="is-assistant">{OPENING_LINE}</li>
             {ai.history.map((m, i) => (
               <li key={i} className={m.role === 'user' ? 'is-user' : 'is-assistant'}>
-                <span className="aurrum-ai-character__sr">{m.role === 'user' ? 'You: ' : 'Counsellor: '}</span>
+                <span className="aurrum-ai-character__sr">{m.role === 'user' ? 'You: ' : 'Companion: '}</span>
                 {m.text}
               </li>
             ))}
@@ -322,9 +322,9 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
           type="button"
           className="aurrum-ai-character__launcher"
           onClick={() => setExpanded(true)}
-          aria-label="Aurrum Career Counsellor"
+          aria-label="Aurrum Career Companion"
           aria-expanded={expanded}
-          title="Open Aurrum Career Counsellor"
+          title="Open Aurrum Career Companion"
         >
           <div className="aurrum-ai-character__bar-avatar">
             <Suspense fallback={<span>Elena</span>}>
@@ -338,15 +338,17 @@ export default function AiCharacter({ scene, overrideText, onOverrideConsumed, m
 
       {/* Modern Floating Modal Panel */}
       {expanded && createPortal(
-        <div className="aurrum-ai-character aurrum-ai-character--modal" role="dialog" aria-modal="true" aria-label="Aurrum Career Counsellor">
+        <div className="aurrum-ai-character aurrum-ai-character--modal" role="dialog" aria-modal="true" aria-label="Aurrum Career Companion">
           <div className="aurrum-ai-character__sheet-head">
             <div className="aurrum-ai-character__sheet-head-avatar">
               <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers" className="aurrum-ai-character__head-logo-img" />
             </div>
-            {/* Show "Aurrum Career Counsellor" text ONLY after opening */}
+            {/* Show "Aurrum Career Companion" text ONLY after opening */}
             <div className="aurrum-ai-character__sheet-head-text">
-              <strong>Aurrum Career Counsellor</strong>
-              <span role="status">{ai.status === 'thinking' ? 'Thinking…' : ai.status === 'listening' ? 'Listening…' : 'Aurrum Careers'}</span>
+              <strong>Aurrum Career Companion</strong>
+              {(ai.status === 'thinking' || ai.status === 'listening') && (
+                <span role="status">{ai.status === 'thinking' ? 'Thinking…' : 'Listening…'}</span>
+              )}
             </div>
 
             <button
