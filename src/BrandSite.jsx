@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './brand-site.css';
+import { GoldenHero } from './GoldenSite.jsx';
 
 const audiences = [
   ['Students', 'Your potential deserves a starting point.', 'Find first jobs, internships, graduate programmes and entry-level opportunities across tech, business and professional career paths.'],
@@ -32,7 +33,8 @@ function Endnote() { return <section className="ac-end"><p className="ac-kicker"
 function Home() {
  const [audience, setAudience] = useState(0);
  return <>
-  <section className="ac-hero ac-wrap">
+  <GoldenHero />
+  <section className="ac-hero ac-wrap" hidden>
    <div className="ac-hero-copy"><p className="ac-kicker"><i /> A LITTLE DIRECTION. A WORLD OF POSSIBILITY.</p><h1>Your personalised<br />career <em>companion.</em></h1><p className="ac-hero-sub">From finding the right role to<br />preparing for the interview.</p><p className="ac-hero-desc">Less scrolling. More direction.<br />Smarter applications. Better opportunities.</p><div className="ac-actions"><LinkButton /><a className="ac-text-link" href="#services">Explore our support <span>↓</span></a></div><p className="ac-trial-note"><span>✦</span> Real people. Personal support. Your next chapter.</p></div>
    <div className="ac-poster" aria-label="An abstract career path moving upward, with the words Your future is an open book."><div className="ac-poster-top">AURRUM / A NEW PERSPECTIVE<span>↗</span></div><span className="ac-sun" /><div className="ac-book"><div className="ac-book-left">YOUR<br />NEXT<br /><b>CHAPTER.</b></div><div className="ac-book-right"><span>↗</span><small>It starts<br />with you.</small></div></div><div className="ac-book-shadow"/><div className="ac-poster-bottom"><h2>Your future is<br />an open book.</h2><span className="ac-poster-square" /></div><p>A little support can change the whole story.</p></div>
   </section>
