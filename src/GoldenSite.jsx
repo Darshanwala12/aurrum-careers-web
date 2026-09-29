@@ -2,6 +2,8 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BrandSite from './BrandSite.jsx';
+import AiCharacter from './ai/AiCharacter.jsx';
+import { scenes } from './data/scenes.js';
 import './golden-site.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,6 +15,10 @@ export function GoldenHero() {
 export default function GoldenSite() {
  const root = useRef(null);
  const [paused, setPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+ const [muted, setMuted] = useState(false);
+ const [captionsOn] = useState(true);
+ const [reducedMotion] = useState(false);
+
  useLayoutEffect(() => {
   const media = gsap.matchMedia();
   if (paused) return undefined;
@@ -48,5 +54,22 @@ export default function GoldenSite() {
   });
   return () => media.revert();
  }, [paused]);
- return <div ref={root} className={`gz-site ${paused ? 'gz-paused' : ''}`}><div className="gz-progress"/><button className="gz-motion" onClick={()=>setPaused(!paused)} aria-pressed={paused}>{paused ? '▶ Play motion' : 'Ⅱ Pause motion'}</button><BrandSite /></div>;
+
+ return (
+  <div ref={root} className={`gz-site ${paused ? 'gz-paused' : ''}`}>
+   <div className="gz-progress"/>
+   <button className="gz-motion" onClick={()=>setPaused(!paused)} aria-pressed={paused}>{paused ? '▶ Play motion' : 'Ⅱ Pause motion'}</button>
+   <BrandSite />
+   <AiCharacter
+    floating
+    scene={scenes[0]}
+    muted={muted}
+    onToggleMute={() => setMuted(v => !v)}
+    captionsOn={captionsOn}
+    paused={paused}
+    reducedMotion={reducedMotion}
+    onOverrideConsumed={() => {}}
+   />
+  </div>
+ );
 }
