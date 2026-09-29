@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
-import StudioSite from './StudioSite.jsx';
+import GoldMotionSite from './GoldMotionSite.jsx';
 import MinimalismSite from './MinimalismSite.jsx';
+import StudioSite from './StudioSite.jsx';
 import CareerDemo from './CareerDemo.jsx';
 import App from './App.jsx';
 
@@ -12,10 +13,11 @@ export default function AppRoutes() {
   const searchParams = new URLSearchParams(window.location.search);
   const demo = searchParams.get('demo') || searchParams.get('site');
   
-  // Default to studio site for this branch
+  // Default to gold motion site for this edition
   const [currentSite, setCurrentSite] = useState(() => {
     if (demo === 'minimalism') return 'minimalism';
-    return 'studio';
+    if (demo === 'studio') return 'studio';
+    return 'gold';
   });
 
   if (demo === 'elena') return <Suspense fallback={null}><CharacterLab /></Suspense>;
@@ -28,5 +30,9 @@ export default function AppRoutes() {
     return <MinimalismSite currentSite={currentSite} onSwitchSite={setCurrentSite} />;
   }
 
-  return <StudioSite currentSite={currentSite} onSwitchSite={setCurrentSite} />;
+  if (currentSite === 'studio') {
+    return <StudioSite currentSite={currentSite} onSwitchSite={setCurrentSite} />;
+  }
+
+  return <GoldMotionSite currentSite={currentSite} onSwitchSite={setCurrentSite} />;
 }

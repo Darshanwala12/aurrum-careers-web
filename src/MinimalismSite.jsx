@@ -52,8 +52,7 @@ export default function MinimalismSite({ currentSite, onSwitchSite }) {
       <header className="min-header">
         <div className="min-container min-header-inner">
           <button className="min-logo" onClick={() => navigateTo('home')}>
-            <span className="min-logo-accent"></span>
-            <span className="min-logo-text">AURRUM<small>CAREERS</small></span>
+            <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers Logo" style={{ height: '42px', width: 'auto' }} />
           </button>
 
           <nav className="min-nav">
@@ -463,8 +462,7 @@ export default function MinimalismSite({ currentSite, onSwitchSite }) {
         <div className="min-container min-footer-inner">
           <div className="min-footer-brand">
             <button className="min-logo" onClick={() => navigateTo('home')}>
-              <span className="min-logo-accent"></span>
-              <span className="min-logo-text">AURRUM<small>CAREERS</small></span>
+              <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers Logo" style={{ height: '42px', width: 'auto' }} />
             </button>
             <p>Your personalised career companion — from finding the right role to preparing for the interview.</p>
           </div>

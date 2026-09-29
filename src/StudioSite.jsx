@@ -51,8 +51,7 @@ export default function StudioSite({ currentSite, onSwitchSite }) {
       <header className="std-header">
         <div className="std-container std-header-content">
           <button className="std-brand" onClick={() => navigateTo('home')}>
-            <span className="std-brand-icon">✳</span>
-            <span className="std-brand-name">AURRUM<b>CAREERS</b></span>
+            <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers Logo" style={{ height: '42px', width: 'auto' }} />
           </button>
 
           <nav className="std-nav">
@@ -437,7 +436,7 @@ export default function StudioSite({ currentSite, onSwitchSite }) {
       <footer className="std-footer">
         <div className="std-container std-footer-grid">
           <div className="std-footer-brand">
-            <span className="std-brand-name">AURRUM<b>CAREERS</b></span>
+            <img src="/brand/aurrum-careers-transparent.png" alt="Aurrum Careers Logo" style={{ height: '42px', width: 'auto' }} />
             <p>Your personalised career companion — from finding the right role to preparing for the interview.</p>
           </div>
 
